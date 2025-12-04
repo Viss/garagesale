@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage Sale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to top,
+                #ff6b35 0%,      /* sunset orange bottom */
+                #ff8c42 8%,      /* warm orange */
+                #ffa552 15%,     /* lighter orange */
+                #ffb366 20%,     /* peach */
+                #d95d8f 30%,     /* sunset pink */
+                #7d4e8d 45%,     /* purple dusk */
+                #4a4073 55%,     /* deep purple */
+                #2d2654 65%,     /* dark purple */
+                #1a1a3e 75%,     /* midnight blue */
+                #0d0d1e 85%,     /* deep night */
+                #05050f 100%     /* night sky */
+            );
+            background-attachment: fixed;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Pixel art stars */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            pointer-events: none;
+            background-image:
+                radial-gradient(2px 2px at 20% 10%, white, transparent),
+                radial-gradient(2px 2px at 60% 15%, white, transparent),
+                radial-gradient(1px 1px at 50% 20%, white, transparent),
+                radial-gradient(2px 2px at 80% 5%, white, transparent),
+                radial-gradient(1px 1px at 25% 25%, white, transparent),
+                radial-gradient(2px 2px at 90% 18%, white, transparent),
+                radial-gradient(1px 1px at 15% 8%, white, transparent),
+                radial-gradient(2px 2px at 70% 22%, white, transparent),
+                radial-gradient(1px 1px at 40% 12%, white, transparent),
+                radial-gradient(2px 2px at 35% 6%, white, transparent),
+                radial-gradient(1px 1px at 75% 28%, white, transparent),
+                radial-gradient(2px 2px at 45% 18%, white, transparent),
+                radial-gradient(1px 1px at 85% 12%, white, transparent),
+                radial-gradient(2px 2px at 10% 15%, white, transparent),
+                radial-gradient(1px 1px at 65% 8%, white, transparent),
+                radial-gradient(2px 2px at 30% 30%, white, transparent),
+                radial-gradient(1px 1px at 95% 22%, white, transparent),
+                radial-gradient(2px 2px at 55% 3%, white, transparent);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            opacity: 0.9;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        /* Additional twinkling stars layer */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35%;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1px 1px at 22% 12%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 48% 8%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 68% 18%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 88% 25%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 78% 10%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 32% 28%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 58% 16%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 92% 8%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 38% 5%, rgba(255,255,255,0.6), transparent);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            animation: twinkle 4s ease-in-out infinite;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 40px 0;
+            font-size: 2.5em;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5),
+                         0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .listing {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            padding: 30px;
+            transition: opacity 0.3s;
+        }
+
+        .listing.sold {
+            opacity: 0.6;
+        }
+
+        .listing.sold .main-image-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                linear-gradient(to bottom right,
+                    transparent 0%,
+                    transparent calc(50% - 4px),
+                    rgba(255, 0, 0, 0.7) calc(50% - 2px),
+                    rgba(255, 0, 0, 0.7) calc(50% + 2px),
+                    transparent calc(50% + 4px),
+                    transparent 100%
+                );
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .listing.sold .listing-info {
+            filter: grayscale(50%);
+        }
+
+        .carousel-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .main-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+            z-index: 10;
+        }
+
+        .carousel-arrow:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        .carousel-arrow.left {
+            left: 15px;
+        }
+
+        .carousel-arrow.right {
+            right: 15px;
+        }
+
+        .thumbnail-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .thumbnail {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            cursor: pointer;
+            object-fit: cover;
+            border: 3px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .thumbnail:hover {
+            border-color: #3498db;
+        }
+
+        .thumbnail.active {
+            border-color: #2ecc71;
+        }
+
+        .listing-info {
+            margin-top: 20px;
+        }
+
+        .listing-title {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .listing-price {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .listing-description {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            white-space: pre-wrap;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled:hover {
+            background: #bdc3c7;
+            transform: none;
+        }
+
+        .btn-sold {
+            background: #e74c3c;
+            color: white;
+            cursor: default;
+        }
+
+        .btn-sold:hover {
+            background: #e74c3c;
+            transform: none;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #95a5a6;
+        }
+
+        .modal-close:hover {
+            color: #7f8c8d;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-option {
+            padding: 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .payment-option:hover {
+            border-color: #3498db;
+            background: #ecf0f1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .no-listings {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 600px) {
+            .main-image-wrapper {
+                height: 300px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Garage Sale</h1>
+
+        {% if listings|length == 0 %}
+        <div class="no-listings">
+            <p>No items for sale at the moment. Check back soon!</p>
+        </div>
+        {% endif %}
+
+        {% for item in listings %}
+        <div class="listing {% if item.listing.sold %}sold{% endif %}" data-listing-id="{{ item.listing.id }}">
+            {% if item.images|length > 0 %}
+            <div class="carousel-container">
+                <div class="main-image-wrapper">
+                    <img src="/static/uploads/{{ item.images[0].filename }}" alt="{{ item.listing.title }}" class="main-image" id="main-image-{{ item.listing.id }}">
+                    {% if item.images|length > 1 and not item.listing.sold %}
+                    <button class="carousel-arrow left" onclick="changeImage({{ item.listing.id }}, -1)">&#8249;</button>
+                    <button class="carousel-arrow right" onclick="changeImage({{ item.listing.id }}, 1)">&#8250;</button>
+                    {% endif %}
+                </div>
+                {% if item.images|length > 1 %}
+                <div class="thumbnail-container" id="thumbnails-{{ item.listing.id }}">
+                    {% for image in item.images %}
+                    <img src="/static/uploads/{{ image.filename }}" alt="Thumbnail" class="thumbnail {% if loop.index0 == 0 %}active{% endif %}" {% if not item.listing.sold %}onclick="setImage({{ item.listing.id }}, {{ loop.index0 }})"{% else %}style="cursor: default;"{% endif %}>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="listing-info">
+                <h2 class="listing-title">{{ item.listing.title }}</h2>
+                <div class="listing-price">${{ "%.2f"|format(item.listing.price) }}</div>
+                <p class="listing-description">{{ item.listing.description }}</p>
+
+                <div class="button-group">
+                    {% if item.listing.sold %}
+                    <button class="btn btn-sold" disabled>SOLD</button>
+                    <button class="btn btn-secondary" disabled>Haggle</button>
+                    {% else %}
+                    {% set methods = item.listing.payment_methods|from_json %}
+                    {% if methods and 'paypal' in methods %}
+                    <button class="btn btn-primary"
+                            data-payment="paypal"
+                            data-listing-id="{{ item.listing.id }}"
+                            data-price="{{ item.listing.price }}"
+                            data-title="{{ item.listing.title }}">
+                        <span style="font-size: 0.9em;">💳</span> PayPal
+                    </button>
+                    {% endif %}
+                    {% if methods and 'square' in methods %}
+                    <button class="btn btn-primary"
+                            data-payment="square"
+                            data-listing-id="{{ item.listing.id }}"
+                            data-price="{{ item.listing.price }}"
+                            data-title="{{ item.listing.title }}">
+                        <span style="font-size: 0.9em;">💳</span> Credit Card
+                    </button>
+                    {% endif %}
+                    {% if methods and 'zelle' in methods %}
+                    <button class="btn btn-primary"
+                            data-payment="zelle"
+                            data-price="{{ item.listing.price }}"
+                            data-title="{{ item.listing.title }}">
+                        <span style="font-size: 0.9em;">💰</span> Zelle
+                    </button>
+                    {% endif %}
+                    {% if not methods or (methods|length == 0) %}
+                    <button class="btn btn-primary" disabled style="opacity: 0.5;">
+                        No Payment Methods - Configure in Admin
+                    </button>
+                    {% endif %}
+                    <button class="btn btn-secondary"
+                            data-action="haggle"
+                            data-listing-id="{{ item.listing.id }}"
+                            data-title="{{ item.listing.title }}">Haggle</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Select Payment Method</h3>
+                <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
+            </div>
+            <div id="paymentContent"></div>
+        </div>
+    </div>
+
+    <!-- Haggle Modal -->
+    <div class="modal" id="haggleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Make an Offer</h3>
+                <button class="modal-close" onclick="closeModal('haggleModal')">&times;</button>
+            </div>
+            <div id="haggleAlert"></div>
+            <form id="haggleForm" onsubmit="submitHaggle(event)">
+                <input type="hidden" id="haggleListingId">
+                <div class="form-group">
+                    <label>Item: <span id="haggleItemTitle"></span></label>
+                </div>
+                <div class="form-group">
+                    <label for="haggleEmail">Your Email</label>
+                    <input type="email" id="haggleEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="haggleMessage">Your Message</label>
+                    <textarea id="haggleMessage" placeholder="Tell the seller what you'd like to offer..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Image carousel functionality
+        const carouselState = {};
+
+        document.querySelectorAll('.listing').forEach(listing => {
+            const listingId = parseInt(listing.dataset.listingId);
+            const images = Array.from(listing.querySelectorAll('.thumbnail')).map(thumb => thumb.src);
+            carouselState[listingId] = {
+                images: images,
+                currentIndex: 0
+            };
+        });
+
+        function changeImage(listingId, direction) {
+            const state = carouselState[listingId];
+            state.currentIndex = (state.currentIndex + direction + state.images.length) % state.images.length;
+            updateImage(listingId);
+        }
+
+        function setImage(listingId, index) {
+            carouselState[listingId].currentIndex = index;
+            updateImage(listingId);
+        }
+
+        function updateImage(listingId) {
+            const state = carouselState[listingId];
+            const mainImage = document.getElementById(`main-image-${listingId}`);
+            mainImage.src = state.images[state.currentIndex];
+
+            // Update active thumbnail
+            const thumbnails = document.querySelectorAll(`#thumbnails-${listingId} .thumbnail`);
+            thumbnails.forEach((thumb, idx) => {
+                thumb.classList.toggle('active', idx === state.currentIndex);
+            });
+        }
+
+        // Modal functionality
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openPaymentModal(listingId, title, price, paymentMethods) {
+            try {
+                // paymentMethods is already a parsed array from tojson filter
+                const methods = Array.isArray(paymentMethods) ? paymentMethods : JSON.parse(paymentMethods || '[]');
+
+                let html = '<div class="payment-options">';
+
+                if (methods.includes('paypal')) {
+                    html += `<div class="payment-option" onclick="payWithPayPal(${price}, '${title}')">PayPal</div>`;
+                }
+                if (methods.includes('square')) {
+                    html += `<div class="payment-option" onclick="payWithSquare(${listingId}, ${price}, '${title}')">Credit Card (Square)</div>`;
+                }
+                if (methods.includes('zelle')) {
+                    html += `<div class="payment-option" onclick="payWithZelle()">Zelle</div>`;
+                }
+
+                if (html === '<div class="payment-options">') {
+                    html += '<p style="text-align: center; color: #666;">No payment methods configured for this item.</p>';
+                }
+
+                html += '</div>';
+                document.getElementById('paymentContent').innerHTML = html;
+                document.getElementById('paymentModal').classList.add('active');
+            } catch (error) {
+                console.error('Error opening payment modal:', error);
+                alert('Error opening payment options. Please try again.');
+            }
+        }
+
+        function openHaggleModal(listingId, title) {
+            document.getElementById('haggleListingId').value = listingId;
+            document.getElementById('haggleItemTitle').textContent = title;
+            document.getElementById('haggleEmail').value = '';
+            document.getElementById('haggleMessage').value = '';
+            document.getElementById('haggleAlert').innerHTML = '';
+            document.getElementById('haggleModal').classList.add('active');
+        }
+
+        async function submitHaggle(event) {
+            event.preventDefault();
+
+            const listingId = document.getElementById('haggleListingId').value;
+            const email = document.getElementById('haggleEmail').value;
+            const message = document.getElementById('haggleMessage').value;
+
+            try {
+                const response = await fetch('/api/haggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        listing_id: listingId,
+                        email: email,
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('haggleAlert').innerHTML =
+                        '<div class="alert alert-success">Message sent successfully! The seller will reply to your email.</div>';
+                    setTimeout(() => closeModal('haggleModal'), 3000);
+                } else {
+                    document.getElementById('haggleAlert').innerHTML =
+                        `<div class="alert alert-error">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('haggleAlert').innerHTML =
+                    '<div class="alert alert-error">Failed to send message. Please try again.</div>';
+            }
+        }
+
+        // Add event listeners for payment buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-payment]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const payment = this.dataset.payment;
+                    const listingId = this.dataset.listingId;
+                    const price = parseFloat(this.dataset.price);
+                    const title = this.dataset.title;
+
+                    if (payment === 'paypal') {
+                        payWithPayPal(listingId, price, title);
+                    } else if (payment === 'square') {
+                        payWithSquare(listingId, price, title);
+                    } else if (payment === 'zelle') {
+                        payWithZelle(price, title);
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-action="haggle"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    openHaggleModal(this.dataset.listingId, this.dataset.title);
+                });
+            });
+        });
+
+        // Payment integrations
+        let paypalLoaded = false;
+
+        async function payWithPayPal(listingId, amount, title) {
+            const content = document.getElementById('paymentContent');
+            document.getElementById('paymentModal').classList.add('active');
+
+            // Show loading message
+            content.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3 style="margin-bottom: 20px;">PayPal Payment</h3>
+                    <p>Loading PayPal...</p>
+                </div>
+            `;
+
+            try {
+                // Fetch PayPal Client ID
+                const response = await fetch('/api/payment-config');
+                const config = await response.json();
+
+                if (!config.paypal_client_id) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <h3 style="margin-bottom: 20px;">PayPal Payment</h3>
+                            <p style="margin-bottom: 20px;">Item: ${title}</p>
+                            <p style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 20px;">$${amount.toFixed(2)}</p>
+                            <p style="color: #666; margin-bottom: 20px;">PayPal checkout will be integrated here once you configure your PayPal Client ID in Admin > Settings.</p>
+                            <p style="color: #666; font-size: 0.9em;">For now, contact the seller to arrange payment.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Load PayPal SDK if not already loaded
+                if (!paypalLoaded) {
+                    await loadPayPalSDK(config.paypal_client_id);
+                    paypalLoaded = true;
+                }
+
+                // Render PayPal button
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3 style="margin-bottom: 20px;">PayPal Payment</h3>
+                        <p style="margin-bottom: 15px; color: #333;"><strong>Item:</strong> ${title}</p>
+                        <p style="font-size: 1.8em; font-weight: bold; color: #27ae60; margin-bottom: 25px;">$${amount.toFixed(2)}</p>
+                        <div id="paypal-button-container"></div>
+                    </div>
+                `;
+
+                // Initialize PayPal buttons
+                paypal.Buttons({
+                    createOrder: function(data, actions) {
+                        return actions.order.create({
+                            purchase_units: [{
+                                description: title,
+                                amount: {
+                                    value: amount.toFixed(2)
+                                }
+                            }]
+                        });
+                    },
+                    onApprove: async function(data, actions) {
+                        return actions.order.capture().then(async function(details) {
+                            console.log('PayPal payment details:', details);
+
+                            // Extract customer info from PayPal response
+                            const customerEmail = details.payer.email_address || 'Not provided';
+                            const customerName = `${details.payer.name.given_name || ''} ${details.payer.name.surname || ''}`.trim() || 'Not provided';
+
+                            // Extract shipping address if provided
+                            let shippingAddress = 'Not provided';
+                            if (details.purchase_units && details.purchase_units[0].shipping) {
+                                const shipping = details.purchase_units[0].shipping;
+                                if (shipping.address) {
+                                    const addr = shipping.address;
+                                    shippingAddress = [
+                                        addr.address_line_1,
+                                        addr.address_line_2,
+                                        `${addr.admin_area_2 || ''}, ${addr.admin_area_1 || ''} ${addr.postal_code || ''}`,
+                                        addr.country_code
+                                    ].filter(Boolean).join('\n');
+                                }
+                            }
+
+                            // Mark listing as sold and send customer info to backend
+                            try {
+                                await fetch('/api/paypal-order-complete', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        listing_id: listingId,
+                                        transaction_id: details.id,
+                                        customer_name: customerName,
+                                        customer_email: customerEmail,
+                                        customer_address: shippingAddress,
+                                        amount: amount
+                                    })
+                                });
+                            } catch (error) {
+                                console.error('Failed to process order:', error);
+                            }
+
+                            content.innerHTML = `
+                                <div style="text-align: center; padding: 20px;">
+                                    <h3 style="color: #27ae60; margin-bottom: 20px;">✓ Payment Successful!</h3>
+                                    <p style="margin-bottom: 15px;">Thank you, ${details.payer.name.given_name}!</p>
+                                    <p style="color: #666;">Transaction ID: ${details.id}</p>
+                                    <p style="color: #666; margin-top: 20px;">This item has been marked as sold.</p>
+                                    <p style="color: #666;">The seller will contact you at ${customerEmail} to arrange pickup/delivery.</p>
+                                    <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Close</button>
+                                </div>
+                            `;
+                        });
+                    },
+                    onError: function(err) {
+                        console.error('PayPal error:', err);
+                        content.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <h3 style="color: #e74c3c; margin-bottom: 20px;">Payment Error</h3>
+                                <p style="color: #666;">There was an error processing your payment.</p>
+                                <p style="color: #666; margin-top: 20px;">Please try again or contact the seller.</p>
+                                <button onclick="closeModal('paymentModal')" class="btn btn-secondary" style="margin-top: 20px;">Close</button>
+                            </div>
+                        `;
+                    }
+                }).render('#paypal-button-container');
+
+            } catch (error) {
+                console.error('Error loading PayPal:', error);
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3 style="color: #e74c3c; margin-bottom: 20px;">Error</h3>
+                        <p style="color: #666;">Failed to load PayPal. Please try again later.</p>
+                        <button onclick="closeModal('paymentModal')" class="btn btn-secondary" style="margin-top: 20px;">Close</button>
+                    </div>
+                `;
+            }
+        }
+
+        function loadPayPalSDK(clientId) {
+            return new Promise((resolve, reject) => {
+                if (window.paypal) {
+                    resolve();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        let squareLoaded = false;
+        let squarePayments = null;
+        let squareCard = null;
+
+        async function payWithSquare(listingId, amount, title) {
+            const content = document.getElementById('paymentContent');
+            document.getElementById('paymentModal').classList.add('active');
+
+            // Show loading message
+            content.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3 style="margin-bottom: 20px;">Credit Card Payment</h3>
+                    <p>Loading payment form...</p>
+                </div>
+            `;
+
+            try {
+                // Fetch Square credentials
+                const response = await fetch('/api/payment-config');
+                const config = await response.json();
+
+                if (!config.square_app_id || !config.square_location_id) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <h3 style="margin-bottom: 20px;">Credit Card Payment</h3>
+                            <p style="margin-bottom: 20px;">Item: ${title}</p>
+                            <p style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 20px;">$${amount.toFixed(2)}</p>
+                            <p style="color: #666; margin-bottom: 20px;">Square payment form will appear here once you configure your Square credentials in Admin > Settings.</p>
+                            <p style="color: #666; font-size: 0.9em;">For now, contact the seller to arrange payment.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Load Square SDK if not already loaded
+                if (!squareLoaded) {
+                    await loadSquareSDK(config.square_app_id, config.square_location_id, config.square_is_sandbox);
+                    squareLoaded = true;
+                }
+
+                // Render payment form
+                content.innerHTML = `
+                    <div style="padding: 20px;">
+                        <h3 style="text-align: center; margin-bottom: 20px;">Credit Card Payment</h3>
+                        <p style="text-align: center; margin-bottom: 15px; color: #333;"><strong>Item:</strong> ${title}</p>
+                        <p style="text-align: center; font-size: 1.8em; font-weight: bold; color: #27ae60; margin-bottom: 25px;">$${amount.toFixed(2)}</p>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Name *</label>
+                            <input type="text" id="square-name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Email *</label>
+                            <input type="email" id="square-email" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Shipping Address *</label>
+                            <textarea id="square-address" required rows="3" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em; font-family: inherit;"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Card Details *</label>
+                            <div id="square-card-container"></div>
+                        </div>
+
+                        <div id="square-error" style="color: #e74c3c; margin-top: 10px; text-align: center;"></div>
+                        <button id="square-pay-button" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Pay Now</button>
+                    </div>
+                `;
+
+                // Initialize card element
+                squareCard = await squarePayments.card();
+                await squareCard.attach('#square-card-container');
+
+                // Handle payment
+                document.getElementById('square-pay-button').addEventListener('click', async () => {
+                    const button = document.getElementById('square-pay-button');
+                    const errorDiv = document.getElementById('square-error');
+
+                    // Get customer info
+                    const customerName = document.getElementById('square-name').value.trim();
+                    const customerEmail = document.getElementById('square-email').value.trim();
+                    const customerAddress = document.getElementById('square-address').value.trim();
+
+                    // Validate fields
+                    if (!customerName || !customerEmail || !customerAddress) {
+                        errorDiv.textContent = 'Please fill in all required fields';
+                        return;
+                    }
+
+                    button.disabled = true;
+                    button.textContent = 'Processing...';
+                    errorDiv.textContent = '';
+
+                    try {
+                        const result = await squareCard.tokenize();
+                        console.log('Square tokenize result:', result);
+
+                        if (result.status === 'OK') {
+                            console.log('Token generated:', result.token);
+
+                            // Send token and customer info to backend for processing
+                            const paymentResponse = await fetch('/api/square-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    source_id: result.token,
+                                    amount_cents: Math.round(amount * 100),
+                                    listing_id: listingId,
+                                    customer_name: customerName,
+                                    customer_email: customerEmail,
+                                    customer_address: customerAddress
+                                })
+                            });
+
+                            const paymentData = await paymentResponse.json();
+
+                            if (paymentResponse.ok) {
+                                content.innerHTML = `
+                                    <div style="text-align: center; padding: 20px;">
+                                        <h3 style="color: #27ae60; margin-bottom: 20px;">✓ Payment Successful!</h3>
+                                        <p style="margin-bottom: 15px;">Thank you for your purchase!</p>
+                                        <p style="color: #666;">Payment ID: ${paymentData.payment_id}</p>
+                                        <p style="color: #666; margin-top: 20px;">This item has been marked as sold.</p>
+                                        <p style="color: #666;">The seller will contact you at ${customerEmail} to arrange pickup/delivery.</p>
+                                        <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Close</button>
+                                    </div>
+                                `;
+                            } else {
+                                errorDiv.textContent = paymentData.error || 'Payment failed';
+                                button.disabled = false;
+                                button.textContent = 'Pay Now';
+                            }
+                        } else {
+                            const errors = result.errors?.map(e => e.message).join(', ') || 'Card validation failed';
+                            errorDiv.textContent = errors;
+                            button.disabled = false;
+                            button.textContent = 'Pay Now';
+                        }
+                    } catch (error) {
+                        console.error('Square payment error:', error);
+                        errorDiv.textContent = 'Payment failed. Please try again.';
+                        button.disabled = false;
+                        button.textContent = 'Pay Now';
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading Square:', error);
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3 style="color: #e74c3c; margin-bottom: 20px;">Error</h3>
+                        <p style="color: #666;">Failed to load payment form.</p>
+                        <p style="color: #999; font-size: 0.9em; margin-top: 10px;">${error.message || 'Please check your Square credentials in Admin Settings.'}</p>
+                        <button onclick="closeModal('paymentModal')" class="btn btn-secondary" style="margin-top: 20px;">Close</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadSquareSDK(appId, locationId, isSandbox) {
+            return new Promise((resolve, reject) => {
+                if (window.Square) {
+                    initSquarePayments(appId, locationId).then(resolve).catch(reject);
+                    return;
+                }
+
+                const script = document.createElement('script');
+                // Use sandbox or production SDK based on backend config
+                const sdkUrl = isSandbox
+                    ? 'https://sandbox.web.squarecdn.com/v1/square.js'
+                    : 'https://web.squarecdn.com/v1/square.js';
+
+                console.log(`Loading Square SDK: ${sdkUrl} (sandbox: ${isSandbox})`);
+                script.src = sdkUrl;
+                script.onload = async () => {
+                    try {
+                        await initSquarePayments(appId, locationId);
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                script.onerror = () => reject(new Error('Failed to load Square SDK'));
+                document.head.appendChild(script);
+            });
+        }
+
+        async function initSquarePayments(appId, locationId) {
+            if (!window.Square) {
+                throw new Error('Square SDK not loaded');
+            }
+            squarePayments = window.Square.payments(appId, locationId);
+        }
+
+        async function payWithZelle(amount, title) {
+            const content = document.getElementById('paymentContent');
+
+            // Fetch Zelle email from backend
+            try {
+                const response = await fetch('/api/payment-config');
+                const config = await response.json();
+
+                if (config.zelle_email) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <h3 style="margin-bottom: 20px;">💰 Pay with Zelle</h3>
+                            <p style="margin-bottom: 15px; color: #333;"><strong>Item:</strong> ${title}</p>
+                            <p style="font-size: 1.8em; font-weight: bold; color: #27ae60; margin-bottom: 25px;">$${amount.toFixed(2)}</p>
+
+                            <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <p style="color: #666; margin-bottom: 15px; font-weight: 600;">Scan QR Code with Your Banking App:</p>
+                                <img src="/api/zelle-qr" alt="Zelle QR Code" style="width: 220px; height: 220px; border: 3px solid #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                <p style="color: #666; margin-top: 15px; font-size: 0.9em;">Compatible with any bank that supports Zelle</p>
+                            </div>
+
+                            <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <p style="color: #666; margin-bottom: 5px; font-size: 0.9em;">Or send manually to:</p>
+                                <p style="font-size: 1.2em; color: #2c3e50; font-weight: bold; word-break: break-all;">${config.zelle_email}</p>
+                            </div>
+
+                            <div style="text-align: left; margin: 20px auto; max-width: 400px;">
+                                <p style="color: #666; font-weight: 600; margin-bottom: 10px;">Instructions:</p>
+                                <ol style="color: #666; padding-left: 20px;">
+                                    <li style="margin-bottom: 8px;">Open your banking app</li>
+                                    <li style="margin-bottom: 8px;">Scan the QR code or enter email manually</li>
+                                    <li style="margin-bottom: 8px;">Send <strong>$${amount.toFixed(2)}</strong></li>
+                                    <li style="margin-bottom: 8px;">Include "${title}" in the note</li>
+                                </ol>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <h3 style="margin-bottom: 20px;">Zelle Payment</h3>
+                            <p style="color: #e74c3c; margin-bottom: 20px;">Zelle email not configured by seller.</p>
+                            <p style="color: #666;">Please use the "Haggle" button to contact the seller for payment details.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3 style="margin-bottom: 20px;">Zelle Payment</h3>
+                        <p style="color: #e74c3c;">Error loading payment details.</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

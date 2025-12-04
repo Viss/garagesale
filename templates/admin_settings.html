@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a24;
+            color: #e0e0e0;
+        }
+
+        .header {
+            background: #2d2d3a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .settings-section {
+            background: #2d2d3a;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid #404050;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #404050;
+        }
+
+        h3 {
+            color: #b0b0b0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b0b0b0;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #404050;
+            border-radius: 6px;
+            font-size: 1em;
+            background: #1a1a24;
+            color: #e0e0e0;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .help-text {
+            color: #909090;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .help-text a {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #2d3e4a;
+            color: #90caf9;
+            border: 1px solid #4a6278;
+        }
+
+        .alert-success {
+            background: #2d4a2d;
+            color: #90ee90;
+            border: 1px solid #4a784a;
+        }
+
+        .alert-error {
+            background: #4a2d2d;
+            color: #ff9999;
+            border: 1px solid #784a4a;
+        }
+
+        .btn-test {
+            margin-top: 10px;
+        }
+
+        .code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .settings-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Settings</h1>
+            <div style="display: flex; gap: 10px;">
+                <a href="/" class="btn btn-secondary" target="_blank">View Site</a>
+                <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <form method="POST">
+            <!-- Admin Settings -->
+            <div class="settings-section">
+                <h2 class="section-title">Admin Settings</h2>
+
+                <div class="form-group">
+                    <label for="admin_email">Admin Email</label>
+                    <input type="email" id="admin_email" name="admin_email" value="{{ config.get('admin_email', '') }}">
+                    <div class="help-text">This email will receive haggle requests from potential buyers</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password">Change Admin Password</label>
+                    <input type="password" id="new_password" name="new_password" placeholder="Leave blank to keep current password">
+                    <div class="help-text">Enter a new password to change it, or leave blank to keep the current one</div>
+                </div>
+            </div>
+
+            <!-- Email Settings -->
+            <div class="settings-section">
+                <h2 class="section-title">Email Settings (SMTP)</h2>
+
+                <div class="alert alert-info">
+                    Configure SMTP settings to enable haggle email functionality. You can use Gmail, SendGrid, Mailgun, or any SMTP provider. For internal LAN SMTP servers, leave username/password blank and disable TLS.
+                </div>
+
+                <div class="form-group">
+                    <label for="smtp_host">SMTP Host</label>
+                    <input type="text" id="smtp_host" name="smtp_host" value="{{ config.get('smtp_host', '') }}" placeholder="smtp.gmail.com">
+                    <div class="help-text">Example: smtp.gmail.com, smtp.sendgrid.net</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="smtp_port">SMTP Port</label>
+                    <input type="number" id="smtp_port" name="smtp_port" value="{{ config.get('smtp_port', '') }}" placeholder="587">
+                    <div class="help-text">Common ports: 587 (TLS), 465 (SSL), 25 (unsecured)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="smtp_user">SMTP Username</label>
+                    <input type="text" id="smtp_user" name="smtp_user" value="{{ config.get('smtp_user', '') }}">
+                    <div class="help-text">Usually your email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="smtp_pass">SMTP Password</label>
+                    <input type="password" id="smtp_pass" name="smtp_pass" value="{{ config.get('smtp_pass', '') }}">
+                    <div class="help-text">For Gmail, use an App Password (not your regular password). Leave blank for LAN SMTP servers without authentication.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="smtp_from">From Email Address (Optional)</label>
+                    <input type="email" id="smtp_from" name="smtp_from" value="{{ config.get('smtp_from', '') }}">
+                    <div class="help-text">Email address to use in the "From" field. If blank, uses SMTP username or admin email.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="smtp_use_tls" name="smtp_use_tls" value="true"
+                               {% if config.get('smtp_use_tls', 'true').lower() in ['true', '1', 'yes'] %}checked{% endif %}
+                               style="width: auto; margin-right: 8px;">
+                        Use TLS/STARTTLS
+                    </label>
+                    <div class="help-text">Enable TLS for secure connection. Disable for internal LAN SMTP servers on port 25.</div>
+                </div>
+
+                <div id="testEmailAlert"></div>
+                <button type="button" class="btn btn-secondary" onclick="sendTestEmail()">Send Test Email</button>
+            </div>
+
+            <!-- Payment Settings -->
+            <div class="settings-section">
+                <h2 class="section-title">Payment Settings</h2>
+
+                <div class="alert alert-info">
+                    Configure payment provider credentials. These are used when buyers select a payment method.
+                </div>
+
+                <h3 style="margin: 25px 0 15px 0; color: #2c3e50;">PayPal</h3>
+
+                <div class="form-group">
+                    <label for="paypal_client_id">PayPal Client ID</label>
+                    <input type="text" id="paypal_client_id" name="paypal_client_id" value="{{ config.get('paypal_client_id', '') }}">
+                    <div class="help-text">Get this from <a href="https://developer.paypal.com/" target="_blank">PayPal Developer Dashboard</a></div>
+                </div>
+
+                <h3 style="margin: 25px 0 15px 0; color: #2c3e50;">Square</h3>
+
+                <div class="form-group">
+                    <label for="square_app_id">Square Application ID</label>
+                    <input type="text" id="square_app_id" name="square_app_id" value="{{ config.get('square_app_id', '') }}">
+                    <div class="help-text">Get this from <a href="https://developer.squareup.com/" target="_blank">Square Developer Dashboard</a></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="square_location_id">Square Location ID</label>
+                    <input type="text" id="square_location_id" name="square_location_id" value="{{ config.get('square_location_id', '') }}">
+                    <div class="help-text">Your Square business location ID (must be from same environment as credentials)</div>
+                </div>
+
+                <div id="testSquareAlert"></div>
+                <button type="button" class="btn btn-secondary" onclick="testSquare()">Fetch Available Locations</button>
+
+                <div class="form-group">
+                    <label for="square_access_token">Square Access Token</label>
+                    <input type="password" id="square_access_token" name="square_access_token" value="{{ config.get('square_access_token', '') }}">
+                    <div class="help-text">Your Square access token (stored encrypted). Get from Square Developer Dashboard.</div>
+                </div>
+
+                <h3 style="margin: 25px 0 15px 0; color: #2c3e50;">Zelle</h3>
+
+                <div class="form-group">
+                    <label for="zelle_email">Zelle Email Address</label>
+                    <input type="email" id="zelle_email" name="zelle_email" value="{{ config.get('zelle_email', '') }}">
+                    <div class="help-text">Your email address registered with Zelle for receiving payments</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+    </div>
+
+    <script>
+        async function sendTestEmail() {
+            const alertDiv = document.getElementById('testEmailAlert');
+            alertDiv.innerHTML = '<div class="alert alert-info">Sending test email...</div>';
+
+            try {
+                const response = await fetch('/admin/test-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alertDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">Error: ${data.error}</div>`;
+                }
+
+                // Clear alert after 5 seconds
+                setTimeout(() => {
+                    alertDiv.innerHTML = '';
+                }, 5000);
+            } catch (error) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Failed to send test email. Check console for details.</div>';
+                console.error('Test email error:', error);
+            }
+        }
+
+        async function testSquare() {
+            const alertDiv = document.getElementById('testSquareAlert');
+            alertDiv.innerHTML = '<div class="alert alert-info">Fetching Square locations...</div>';
+
+            try {
+                const response = await fetch('/admin/test-square', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let html = `<div class="alert alert-success">
+                        <strong>${data.environment} Environment</strong><br>
+                        ${data.message}<br><br>
+                        <strong>Available Locations:</strong><br>`;
+
+                    data.locations.forEach(loc => {
+                        html += `<div style="margin: 10px 0; padding: 10px; background: #2d4a2d; border-radius: 4px;">
+                            <strong>${loc.name}</strong> (${loc.status})<br>
+                            <code style="background: #1a1a24; padding: 5px; border-radius: 3px; color: #90ee90; word-break: break-all;">${loc.id}</code>
+                        </div>`;
+                    });
+
+                    html += '</div>';
+                    alertDiv.innerHTML = html;
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Failed to fetch locations. Check console for details.</div>';
+                console.error('Test Square error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
