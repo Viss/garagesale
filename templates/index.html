@@ -379,9 +379,9 @@
             background: white;
             border-radius: 12px;
             padding: 30px;
-            max-width: 500px;
+            max-width: 850px;
             width: 90%;
-            max-height: 54vh;
+            max-height: 65vh;
             overflow-y: auto;
         }
 
@@ -1366,30 +1366,41 @@
 
                 if (config.zelle_email) {
                     content.innerHTML = `
-                        <div style="text-align: center; padding: 20px;">
-                            <h3 style="margin-bottom: 20px;">💰 Pay with Zelle</h3>
-                            <p style="margin-bottom: 15px; color: #333;"><strong>Item:</strong> ${title}</p>
-                            <p style="font-size: 1.8em; font-weight: bold; color: #27ae60; margin-bottom: 25px;">$${amount.toFixed(2)}</p>
-
-                            <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                                <p style="color: #666; margin-bottom: 15px; font-weight: 600;">Scan QR Code with Your Banking App:</p>
-                                <img src="/api/zelle-qr" alt="Zelle QR Code" style="width: 220px; height: 220px; border: 3px solid #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                                <p style="color: #666; margin-top: 15px; font-size: 0.9em;">Compatible with any bank that supports Zelle</p>
+                        <div style="padding: 10px;">
+                            <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 15px;">
+                                <div style="flex: 0 0 auto; width: 250px; text-align: center;">
+                                    <p style="font-size: 1.8em; font-weight: bold; color: #27ae60; margin: 0;">$${amount.toFixed(2)}</p>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0;">💰 Pay with Zelle</h3>
+                                    <p style="margin: 0; color: #333;"><strong>Item:</strong> ${title}</p>
+                                </div>
                             </div>
 
-                            <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                                <p style="color: #666; margin-bottom: 5px; font-size: 0.9em;">Or send manually to:</p>
-                                <p style="font-size: 1.2em; color: #2c3e50; font-weight: bold; word-break: break-all;">${config.zelle_email}</p>
-                            </div>
+                            <div style="display: flex; gap: 20px; align-items: flex-start;">
+                                <div style="flex: 0 0 auto; background: #f0f0f0; padding: 15px; border-radius: 8px; text-align: center;">
+                                    <p style="color: #666; margin-bottom: 10px; font-weight: 600;">Scan QR Code:</p>
+                                    <img src="/api/zelle-qr" alt="Zelle QR Code" style="width: 220px; height: 220px; border: 3px solid #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                    <p style="color: #666; margin-top: 10px; font-size: 0.9em;">Use your banking app</p>
+                                </div>
 
-                            <div style="text-align: left; margin: 20px auto; max-width: 400px;">
-                                <p style="color: #666; font-weight: 600; margin-bottom: 10px;">Instructions:</p>
-                                <ol style="color: #666; padding-left: 20px;">
-                                    <li style="margin-bottom: 8px;">Open your banking app</li>
-                                    <li style="margin-bottom: 8px;">Scan the QR code or enter email manually</li>
-                                    <li style="margin-bottom: 8px;">Send <strong>$${amount.toFixed(2)}</strong></li>
-                                    <li style="margin-bottom: 8px;">Include "${title}" in the note</li>
-                                </ol>
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                                    <div style="background: #f0f0f0; padding: 15px; border-radius: 8px;">
+                                        <p style="color: #666; margin-bottom: 8px; font-size: 0.95em; font-weight: 600;">Or send manually to:</p>
+                                        <p style="font-size: 1.2em; color: #2c3e50; font-weight: bold; word-break: break-all;">${config.zelle_email}</p>
+                                    </div>
+
+                                    <div style="background: #f0f0f0; padding: 15px; border-radius: 8px;">
+                                        <p style="color: #666; font-weight: 600; margin-bottom: 10px;">Instructions:</p>
+                                        <ol style="color: #666; padding-left: 20px; margin: 0;">
+                                            <li style="margin-bottom: 6px;">Open your banking app</li>
+                                            <li style="margin-bottom: 6px;">Scan the QR code or enter email manually</li>
+                                            <li style="margin-bottom: 6px;">Send <strong>$${amount.toFixed(2)}</strong></li>
+                                            <li style="margin-bottom: 6px;">Include "${title}" in the note</li>
+                                        </ol>
+                                        <p style="color: #666; margin-top: 10px; font-size: 0.9em; font-style: italic;">Compatible with any bank that supports Zelle</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
