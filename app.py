@@ -154,14 +154,14 @@ def check_user_agent():
     # No user agent = suspicious
     if not user_agent:
         logger.warning(f"Blocked request with no user agent from {request.remote_addr}")
-        ban_ip(request.remote_addr, "No user agent")
+        ban_ip(request.remote_addr, "Nope")
         return False
 
     # Check against blocked patterns
     for blocked in BLOCKED_USER_AGENTS:
         if blocked in user_agent:
             logger.warning(f"Blocked automated tool '{blocked}' from {request.remote_addr}")
-            ban_ip(request.remote_addr, f"Bot user agent: {blocked}")
+            ban_ip(request.remote_addr, f"Eat shit, bot")
             return False
 
     return True
@@ -173,7 +173,7 @@ def check_referrer():
     # No referrer = suspicious (direct API call)
     if not referrer:
         logger.warning(f"Blocked request with no referrer from {request.remote_addr}")
-        ban_ip(request.remote_addr, "No referrer (direct API access)")
+        ban_ip(request.remote_addr, "Die in a fire, bot")
         return False
 
     # Parse referrer and check if it's from same host
@@ -187,12 +187,12 @@ def check_referrer():
 
         if ref_host_base != request_host_base:
             logger.warning(f"Blocked cross-origin request from {ref_host} to {request_host}")
-            ban_ip(request.remote_addr, f"Cross-origin request from {ref_host}")
+            ban_ip(request.remote_addr, f"NO FUCKAROUNDERY")
             return False
 
         return True
     except Exception:
-        ban_ip(request.remote_addr, "Invalid referrer format")
+        ban_ip(request.remote_addr, "gooooo awaaaaaaaayuh")
         return False
 
 def check_rate_limit(ip_address, max_requests=None):
@@ -245,7 +245,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         # Optional: Check if request is from private network
         if REQUIRE_PRIVATE_NETWORK and not is_admin_ip(request.remote_addr):
-            return "Access denied: Admin section only accessible from internal network", 403
+            return "Access denied", 403
 
         # Always require login
         if 'admin_logged_in' not in session:
