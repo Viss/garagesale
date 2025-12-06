@@ -185,8 +185,8 @@
         <div class="header-content">
             <h1>Settings</h1>
             <div style="display: flex; gap: 10px;">
-                <a href="/" class="btn btn-secondary" target="_blank">View Site</a>
-                <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="/garagesale" class="btn btn-secondary" target="_blank">View Site</a>
+                <a href="/garagesale/admin" class="btn btn-secondary">Back to Dashboard</a>
             </div>
         </div>
     </div>
@@ -320,7 +320,7 @@
             alertDiv.innerHTML = '<div class="alert alert-info">Sending test email...</div>';
 
             try {
-                const response = await fetch('/admin/test-email', {
+                const response = await fetch('/garagesale/admin/test-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -350,7 +350,7 @@
             alertDiv.innerHTML = '<div class="alert alert-info">Fetching Square locations...</div>';
 
             try {
-                const response = await fetch('/admin/test-square', {
+                const response = await fetch('/garagesale/admin/test-square', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
