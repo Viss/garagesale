@@ -667,7 +667,7 @@
             {% if item.images|length > 0 %}
             <div class="carousel-container">
                 <div class="main-image-wrapper">
-			<img src="{{ url_for('static', filename='uploads/' ~ item.images[0].filename) }}" alt="{{ item.listing.title }}" class="main-image" id="main-image-{{ item.listing.id }}" onclick="openImageViewer({{ item.listing.id }}, carouselState[{{ item.listing.id }}].currentIndex)">
+                    <img src="/garagesale/static/uploads/{{ item.images[0].filename }}" alt="{{ item.listing.title }}" class="main-image" id="main-image-{{ item.listing.id }}" onclick="openImageViewer({{ item.listing.id }}, carouselState[{{ item.listing.id }}].currentIndex)">
                     {% if item.images|length > 1 and not item.listing.sold %}
                     <button class="carousel-arrow left" onclick="changeImage({{ item.listing.id }}, -1)">&#8249;</button>
                     <button class="carousel-arrow right" onclick="changeImage({{ item.listing.id }}, 1)">&#8250;</button>
@@ -676,7 +676,7 @@
                 {% if item.images|length > 1 %}
                 <div class="thumbnail-container" id="thumbnails-{{ item.listing.id }}">
                     {% for image in item.images %}
-		    <img src="{{ url_for('static', filename='uploads/' ~ image.filename) }}" alt="Thumbnail" class="thumbnail {% if loop.index0 == 0 %}active{% endif %}" {% if not item.listing.sold %}onclick="setImage({{ item.listing.id }}, {{ loop.index0 }})"{% else %}style="cursor: default;"{% endif %} ondblclick="openImageViewer({{ item.listing.id }}, {{ loop.index0 }})">
+                    <img src="/garagesale/static/uploads/{{ image.filename }}" alt="Thumbnail" class="thumbnail {% if loop.index0 == 0 %}active{% endif %}" {% if not item.listing.sold %}onclick="setImage({{ item.listing.id }}, {{ loop.index0 }})"{% else %}style="cursor: default;"{% endif %} ondblclick="openImageViewer({{ item.listing.id }}, {{ loop.index0 }})">
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -792,9 +792,6 @@
     </div>
 
     <script>
-	window.__GARAGESALE_PREFIX__ = {{ request.script_root|tojson }};
-	const PREFIX = window.__GARAGESALE_PREFIX__ || '';
-
         // Image carousel functionality
         const carouselState = {};
 
@@ -1162,218 +1159,202 @@
             });
         }
 
-// ---- Square stable integration ----
-let squareLoaded = false;
-let squareLoadingPromise = null;
-let squarePayments = null;
-let squareCard = null;
-let squareRequestCounter = 0;
+        let squareLoaded = false;
+        let squarePayments = null;
+        let squareCard = null;
 
-async function payWithSquare(listingId, amount, title) {
-    const reqId = ++squareRequestCounter;
-    const content = document.getElementById('paymentContent');
-    document.getElementById('paymentModal').classList.add('active');
+        async function payWithSquare(listingId, amount, title) {
+            const content = document.getElementById('paymentContent');
+            document.getElementById('paymentModal').classList.add('active');
 
-    const stillCurrent = () => reqId === squareRequestCounter;
-
-    content.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <h3 style="margin-bottom: 20px;">Credit Card Payment</h3>
-            <p>Loading payment form...</p>
-        </div>
-    `;
-
-    try {
-        const response = await fetch(`${PREFIX}/api/payment-config`);
-        const config = await response.json();
-
-        if (!config.square_app_id || !config.square_location_id) {
-            if (!stillCurrent()) return;
+            // Show loading message
             content.innerHTML = `
                 <div style="text-align: center; padding: 20px;">
                     <h3 style="margin-bottom: 20px;">Credit Card Payment</h3>
-                    <p style="margin-bottom: 20px;">Item: ${title}</p>
-                    <p style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 20px;">$${amount.toFixed(2)}</p>
-                    <p style="color: #666; margin-bottom: 20px;">Square payment form will appear here once you configure your Square credentials in Admin > Settings.</p>
+                    <p>Loading payment form...</p>
                 </div>
             `;
-            return;
-        }
-
-        if (!squareLoaded) {
-            if (!squareLoadingPromise) {
-                squareLoadingPromise = loadSquareSDK(
-                    config.square_app_id,
-                    config.square_location_id,
-                    config.square_is_sandbox
-                );
-            }
-            await squareLoadingPromise;
-            squareLoaded = true;
-        }
-
-        if (!stillCurrent()) return;
-
-        content.innerHTML = `
-            <div style="padding: 20px;">
-                <h3 style="text-align: center; margin-bottom: 20px;">Credit Card Payment</h3>
-	        <p style="text-align: center"><img src="static/Square_Logo_2025_Black.png" width="125"></img></p>
-                <p style="text-align: center; margin-bottom: 15px; color: #333;"><strong>Item:</strong> ${title}</p>
-                <p style="text-align: center; font-size: 1.8em; font-weight: bold; color: #27ae60; margin-bottom: 25px;">$${amount.toFixed(2)}</p>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Name *</label>
-                    <input type="text" id="square-name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em;">
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Email *</label>
-                    <input type="email" id="square-email" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em;">
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Shipping Address *</label>
-                    <textarea id="square-address" required rows="3" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em; font-family: inherit;"></textarea>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Card Details *</label>
-                    <div id="square-card-container"></div>
-                </div>
-
-                <div id="square-error" style="color: #e74c3c; margin-top: 10px; text-align: center;"></div>
-                <button id="square-pay-button" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Pay Now</button>
-            </div>
-        `;
-
-        if (!stillCurrent()) return;
-
-        const container = document.querySelector('#square-card-container');
-        if (!container) throw new Error('Card container missing');
-
-        try {
-            if (squareCard && typeof squareCard.destroy === 'function') {
-                squareCard.destroy();
-            }
-        } catch (_) {}
-        squareCard = null;
-
-        squareCard = await squarePayments.card();
-        await squareCard.attach('#square-card-container');
-
-        if (!stillCurrent()) return;
-
-        const payBtn = document.getElementById('square-pay-button');
-        const errorDiv = document.getElementById('square-error');
-
-        payBtn.onclick = async () => {
-            const customerName = document.getElementById('square-name').value.trim();
-            const customerEmail = document.getElementById('square-email').value.trim();
-            const customerAddress = document.getElementById('square-address').value.trim();
-
-            if (!customerName || !customerEmail || !customerAddress) {
-                errorDiv.textContent = 'Please fill in all required fields';
-                return;
-            }
-
-            payBtn.disabled = true;
-            payBtn.textContent = 'Processing...';
-            errorDiv.textContent = '';
 
             try {
-                const result = await squareCard.tokenize();
+                // Fetch Square credentials
+                const response = await fetch('api/payment-config');
+                const config = await response.json();
 
-                if (result.status === 'OK') {
-                    const paymentResponse = await fetch(`${PREFIX}/api/square-payment`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            source_id: result.token,
-                            amount_cents: Math.round(amount * 100),
-                            listing_id: listingId,
-                            customer_name: customerName,
-                            customer_email: customerEmail,
-                            customer_address: customerAddress
-                        })
-                    });
-
-                    const paymentData = await paymentResponse.json();
-
-                    if (paymentResponse.ok) {
-                        content.innerHTML = `
-                            <div style="text-align: center; padding: 20px;">
-                                <h3 style="color: #27ae60; margin-bottom: 20px;">✓ Payment Successful!</h3>
-                                <p style="margin-bottom: 15px;">Thank you for your purchase!</p>
-                                <p style="color: #666;">Payment ID: ${paymentData.payment_id}</p>
-                                <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Close</button>
-                            </div>
-                        `;
-                    } else {
-                        errorDiv.textContent = paymentData.error || 'Payment failed';
-                        payBtn.disabled = false;
-                        payBtn.textContent = 'Pay Now';
-                    }
-                } else {
-                    const errors = result.errors?.map(e => e.message).join(', ') || 'Card validation failed';
-                    errorDiv.textContent = errors;
-                    payBtn.disabled = false;
-                    payBtn.textContent = 'Pay Now';
+                if (!config.square_app_id || !config.square_location_id) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <h3 style="margin-bottom: 20px;">Credit Card Payment</h3>
+                            <p style="margin-bottom: 20px;">Item: ${title}</p>
+                            <p style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 20px;">$${amount.toFixed(2)}</p>
+                            <p style="color: #666; margin-bottom: 20px;">Square payment form will appear here once you configure your Square credentials in Admin > Settings.</p>
+                            <p style="color: #666; font-size: 0.9em;">For now, contact the seller to arrange payment.</p>
+                        </div>
+                    `;
+                    return;
                 }
-            } catch (err) {
-                console.error('Square payment error:', err);
-                errorDiv.textContent = 'Payment failed. Please try again.';
-                payBtn.disabled = false;
-                payBtn.textContent = 'Pay Now';
+
+                // Load Square SDK if not already loaded
+                if (!squareLoaded) {
+                    await loadSquareSDK(config.square_app_id, config.square_location_id, config.square_is_sandbox);
+                    squareLoaded = true;
+                }
+
+                // Render payment form
+                content.innerHTML = `
+                    <div style="padding: 20px;">
+                        <h3 style="text-align: center; margin-bottom: 20px;">Credit Card Payment</h3>
+                        <p style="text-align: center; margin-bottom: 15px; color: #333;"><strong>Item:</strong> ${title}</p>
+                        <p style="text-align: center; font-size: 1.8em; font-weight: bold; color: #27ae60; margin-bottom: 25px;">$${amount.toFixed(2)}</p>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Name *</label>
+                            <input type="text" id="square-name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Email *</label>
+                            <input type="email" id="square-email" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Shipping Address *</label>
+                            <textarea id="square-address" required rows="3" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em; font-family: inherit;"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Card Details *</label>
+                            <div id="square-card-container"></div>
+                        </div>
+
+                        <div id="square-error" style="color: #e74c3c; margin-top: 10px; text-align: center;"></div>
+                        <button id="square-pay-button" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Pay Now</button>
+                    </div>
+                `;
+
+                // Initialize card element
+                squareCard = await squarePayments.card();
+                await squareCard.attach('#square-card-container');
+
+                // Handle payment
+                document.getElementById('square-pay-button').addEventListener('click', async () => {
+                    const button = document.getElementById('square-pay-button');
+                    const errorDiv = document.getElementById('square-error');
+
+                    // Get customer info
+                    const customerName = document.getElementById('square-name').value.trim();
+                    const customerEmail = document.getElementById('square-email').value.trim();
+                    const customerAddress = document.getElementById('square-address').value.trim();
+
+                    // Validate fields
+                    if (!customerName || !customerEmail || !customerAddress) {
+                        errorDiv.textContent = 'Please fill in all required fields';
+                        return;
+                    }
+
+                    button.disabled = true;
+                    button.textContent = 'Processing...';
+                    errorDiv.textContent = '';
+
+                    try {
+                        const result = await squareCard.tokenize();
+                        console.log('Square tokenize result:', result);
+
+                        if (result.status === 'OK') {
+                            console.log('Token generated:', result.token);
+
+                            // Send token and customer info to backend for processing
+                            const paymentResponse = await fetch('api/square-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    source_id: result.token,
+                                    amount_cents: Math.round(amount * 100),
+                                    listing_id: listingId,
+                                    customer_name: customerName,
+                                    customer_email: customerEmail,
+                                    customer_address: customerAddress
+                                })
+                            });
+
+                            const paymentData = await paymentResponse.json();
+
+                            if (paymentResponse.ok) {
+                                content.innerHTML = `
+                                    <div style="text-align: center; padding: 20px;">
+                                        <h3 style="color: #27ae60; margin-bottom: 20px;">✓ Payment Successful!</h3>
+                                        <p style="margin-bottom: 15px;">Thank you for your purchase!</p>
+                                        <p style="color: #666;">Payment ID: ${paymentData.payment_id}</p>
+                                        <p style="color: #666; margin-top: 20px;">This item has been marked as sold.</p>
+                                        <p style="color: #666;">The seller will contact you at ${customerEmail} to arrange pickup/delivery.</p>
+                                        <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Close</button>
+                                    </div>
+                                `;
+                            } else {
+                                errorDiv.textContent = paymentData.error || 'Payment failed';
+                                button.disabled = false;
+                                button.textContent = 'Pay Now';
+                            }
+                        } else {
+                            const errors = result.errors?.map(e => e.message).join(', ') || 'Card validation failed';
+                            errorDiv.textContent = errors;
+                            button.disabled = false;
+                            button.textContent = 'Pay Now';
+                        }
+                    } catch (error) {
+                        console.error('Square payment error:', error);
+                        errorDiv.textContent = 'Payment failed. Please try again.';
+                        button.disabled = false;
+                        button.textContent = 'Pay Now';
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading Square:', error);
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3 style="color: #e74c3c; margin-bottom: 20px;">Error</h3>
+                        <p style="color: #666;">Failed to load payment form.</p>
+                        <p style="color: #999; font-size: 0.9em; margin-top: 10px;">${error.message || 'Please check your Square credentials in Admin Settings.'}</p>
+                        <button onclick="closeModal('paymentModal')" class="btn btn-secondary" style="margin-top: 20px;">Close</button>
+                    </div>
+                `;
             }
-        };
-
-    } catch (error) {
-        if (reqId !== squareRequestCounter) return;
-        console.error('Error loading Square:', error);
-        content.innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <h3 style="color: #e74c3c; margin-bottom: 20px;">Error</h3>
-                <p style="color: #666;">Failed to load payment form.</p>
-                <p style="color: #999; font-size: 0.9em; margin-top: 10px;">${error.message || 'An unexpected error occurred while using Card.'}</p>
-                <button onclick="closeModal('paymentModal')" class="btn btn-secondary" style="margin-top: 20px;">Close</button>
-            </div>
-        `;
-    }
-}
-
-function loadSquareSDK(appId, locationId, isSandbox) {
-    return new Promise((resolve, reject) => {
-        if (window.Square) {
-            initSquarePayments(appId, locationId).then(resolve).catch(reject);
-            return;
         }
 
-        const script = document.createElement('script');
-        script.src = isSandbox
-            ? 'https://sandbox.web.squarecdn.com/v1/square.js'
-            : 'https://web.squarecdn.com/v1/square.js';
+        async function loadSquareSDK(appId, locationId, isSandbox) {
+            return new Promise((resolve, reject) => {
+                if (window.Square) {
+                    initSquarePayments(appId, locationId).then(resolve).catch(reject);
+                    return;
+                }
 
-        script.onload = async () => {
-            try {
-                await initSquarePayments(appId, locationId);
-                resolve();
-            } catch (e) {
-                reject(e);
+                const script = document.createElement('script');
+                // Use sandbox or production SDK based on backend config
+                const sdkUrl = isSandbox
+                    ? 'https://sandbox.web.squarecdn.com/v1/square.js'
+                    : 'https://web.squarecdn.com/v1/square.js';
+
+                console.log(`Loading Square SDK: ${sdkUrl} (sandbox: ${isSandbox})`);
+                script.src = sdkUrl;
+                script.onload = async () => {
+                    try {
+                        await initSquarePayments(appId, locationId);
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                script.onerror = () => reject(new Error('Failed to load Square SDK'));
+                document.head.appendChild(script);
+            });
+        }
+
+        async function initSquarePayments(appId, locationId) {
+            if (!window.Square) {
+                throw new Error('Square SDK not loaded');
             }
-        };
-
-        script.onerror = () => reject(new Error('Failed to load Square SDK'));
-        document.head.appendChild(script);
-    });
-}
-
-async function initSquarePayments(appId, locationId) {
-    if (!window.Square) throw new Error('Square SDK not loaded');
-    squarePayments = window.Square.payments(appId, locationId);
-    return squarePayments;
-}
-// ---- end Square stable integration ----
-
+            squarePayments = window.Square.payments(appId, locationId);
+        }
 
         async function payWithZelle(amount, title) {
             const content = document.getElementById('paymentContent');

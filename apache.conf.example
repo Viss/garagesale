@@ -1,102 +1,17 @@
-# Apache configuration for Garage Sale application
-# Place this in /etc/apache2/sites-available/garagesale.conf
+        ProxyPreserveHost On
 
-<VirtualHost *:80>
-    ServerName your-domain.com
+        ProxyPass        /garagesale/  http://127.0.0.1:5000/
+        ProxyPassReverse /garagesale/  http://127.0.0.1:5000/
 
-    # Enable required modules:
-    # sudo a2enmod proxy proxy_http headers
+        <Location /garagesale/>
+            RequestHeader set X-Forwarded-Prefix "/garagesale"
+            RequestHeader set X-Forwarded-Proto "https"
+        </Location>
 
-    # Proxy settings
-    ProxyPreserveHost On
-    ProxyTimeout 600
+        <LocationMatch "^/garagesale/backend/">
+            Require all denied
+        </LocationMatch>
 
-    # Block access to backend directory (contains database, SQL files, etc.)
-    <LocationMatch "^/backend/">
-        Require all denied
-    </LocationMatch>
-
-    # Public routes - accessible to everyone
-    ProxyPass /static !
-    ProxyPass / http://127.0.0.1:5000/
-    ProxyPassReverse / http://127.0.0.1:5000/
-
-    # Admin section - restrict to RFC1918 networks
-    <Location /admin>
-        # Require IP from RFC1918 private networks
-        Require ip 192.168.0.0/16
-        Require ip 10.0.0.0/8
-        Require ip 172.16.0.0/12
-        Require ip 127.0.0.1
-    </Location>
-
-    # Static files (optional - can be served directly by Apache)
-    Alias /static /home/viss/tools/scratch/anthropic/garagesale/static
-    <Directory /home/viss/tools/scratch/anthropic/garagesale/static>
-        Require all granted
-        Options -Indexes
-        # Cache static files for 30 days
-        Header set Cache-Control "max-age=2592000, public"
-    </Directory>
-
-    # Logging
-    ErrorLog ${APACHE_LOG_DIR}/garagesale_error.log
-    CustomLog ${APACHE_LOG_DIR}/garagesale_access.log combined
-</VirtualHost>
-
-# Optional: SSL/TLS configuration with Let's Encrypt
-# Uncomment and configure after obtaining SSL certificate
-#
-# <IfModule mod_ssl.c>
-# <VirtualHost *:443>
-#     ServerName your-domain.com
-#
-#     # Enable SSL
-#     SSLEngine on
-#     SSLCertificateFile /etc/letsencrypt/live/your-domain.com/fullchain.pem
-#     SSLCertificateKeyFile /etc/letsencrypt/live/your-domain.com/privkey.pem
-#
-#     # Modern SSL configuration
-#     SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1
-#     SSLCipherSuite HIGH:!aNULL:!MD5
-#     SSLHonorCipherOrder on
-#
-#     # Proxy settings
-#     ProxyPreserveHost On
-#     ProxyTimeout 600
-#
-#     # Block access to backend directory (contains database, SQL files, etc.)
-#     <LocationMatch "^/backend/">
-#         Require all denied
-#     </LocationMatch>
-#
-#     ProxyPass /static !
-#     ProxyPass / http://127.0.0.1:5000/
-#     ProxyPassReverse / http://127.0.0.1:5000/
-#
-#     # Admin section - restrict to RFC1918 networks
-#     <Location /admin>
-#         Require ip 192.168.0.0/16
-#         Require ip 10.0.0.0/8
-#         Require ip 172.16.0.0/12
-#         Require ip 127.0.0.1
-#     </Location>
-#
-#     # Static files
-#     Alias /static /home/viss/tools/scratch/anthropic/garagesale/static
-#     <Directory /home/viss/tools/scratch/anthropic/garagesale/static>
-#         Require all granted
-#         Options -Indexes
-#         Header set Cache-Control "max-age=2592000, public"
-#     </Directory>
-#
-#     ErrorLog ${APACHE_LOG_DIR}/garagesale_error.log
-#     CustomLog ${APACHE_LOG_DIR}/garagesale_access.log combined
-# </VirtualHost>
-# </IfModule>
-#
-# # Redirect HTTP to HTTPS
-# <VirtualHost *:80>
-#     ServerName your-domain.com
-#     Redirect permanent / https://your-domain.com/
-# </VirtualHost>
+        <Location /garagesale/admin>
+            Require ip 192.168.0.0/16 10.0.0.0/8 172.16.0.0/12 127.0.0.1
+        </Location>

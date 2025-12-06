@@ -18,12 +18,23 @@ import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['DATABASE'] = 'backend/garagesale.db'
+
+app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1,
+    x_proto=1,
+    x_host=1,
+    x_prefix=1
+)
 
 # ============================================================================
 # USER CONFIGURATION - Edit these values to customize your setup
@@ -267,16 +278,19 @@ def add_security_headers(response):
 
     # Only add CSP for HTML responses (not images/json)
     if response.mimetype == 'text/html':
-        # Allow PayPal and Square SDK scripts and iframes
         response.headers['Content-Security-Policy'] = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://www.paypal.com https://sandbox.web.squarecdn.com https://web.squarecdn.com; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: https:; "
-            "connect-src 'self' https://www.paypal.com https://connect.squareup.com https://connect.squareupsandbox.com; "
-            "frame-src https://www.paypal.com https://sandbox.web.squarecdn.com https://web.squarecdn.com;"
+          "default-src 'self'; "
+          "script-src 'self' 'unsafe-inline' https://www.paypal.com https://sandbox.web.squarecdn.com"
+          "https://web.squarecdn.com https://sandbox.web.squarecdn.com; "
+          "style-src 'self' 'unsafe-inline' https://sandbox.web.squarecdn.com;"
+          "img-src 'self' data: https://sandbox.web.squarecdn.com; "
+          "connect-src 'self' https://www.paypal.com https://sandbox.web.squarecdn.com"
+          "https://connect.squareup.com https://connect.squareupsandbox.com "
+          "https://*.squarecdn.com https://*.squareup.com https://*.squareupsandbox.com; "
+          "frame-src https://www.paypal.com https://sandbox.web.squarecdn.com"
+          "https://web.squarecdn.com https://*.squarecdn.com "
+          "https://*.squarecdn.com https://pci-connect.squareupsandbox.com https://sandbox.web.squarecdn.com/* https://*.squareup.com https://*.squareupsandbox.com;"
         )
-
     return response
 
 # Public routes

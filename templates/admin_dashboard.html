@@ -202,10 +202,10 @@
         <div class="header-content">
             <h1>Admin Dashboard</h1>
             <div class="header-actions">
-                <a href="/" class="btn btn-secondary" target="_blank">View Site</a>
-                <a href="/admin/listing/new" class="btn btn-primary">New Listing</a>
-                <a href="/admin/settings" class="btn btn-secondary">Settings</a>
-                <a href="/admin/logout" class="btn btn-secondary">Logout</a>
+                <a href="/garagesale" class="btn btn-secondary" target="_blank">View Site</a>
+                <a href="/garagesale/admin/listing/new" class="btn btn-primary">New Listing</a>
+                <a href="/garagesale/admin/settings" class="btn btn-secondary">Settings</a>
+                <a href="/garagesale/admin/logout" class="btn btn-secondary">Logout</a>
             </div>
         </div>
     </div>
@@ -214,14 +214,14 @@
         {% if listings|length == 0 %}
         <div class="no-listings">
             <p>No listings yet.</p>
-            <a href="/admin/listing/new" class="btn btn-primary">Create Your First Listing</a>
+            <a href="/garagesale/admin/listing/new" class="btn btn-primary">Create Your First Listing</a>
         </div>
         {% else %}
         <div class="listings-grid">
             {% for item in listings %}
             <div class="listing-card">
                 {% if item.images|length > 0 %}
-                <img src="/static/uploads/{{ item.images[0].filename }}" alt="{{ item.listing.title }}" class="listing-image">
+                <img src="/garagesale/static/uploads/{{ item.images[0].filename }}" alt="{{ item.listing.title }}" class="listing-image">
                 {% else %}
                 <div class="listing-image"></div>
                 {% endif %}
@@ -237,19 +237,19 @@
                     {% endif %}
 
                     <div class="listing-actions">
-                        <a href="/admin/listing/{{ item.listing.id }}/edit" class="btn btn-secondary">Edit</a>
+                        <a href="/garagesale/admin/listing/{{ item.listing.id }}/edit" class="btn btn-secondary">Edit</a>
 
                         {% if not item.listing.sold %}
-                        <form method="POST" action="/admin/listing/{{ item.listing.id }}/mark-sold" style="flex: 1;">
+                        <form method="POST" action="/garagesale/admin/listing/{{ item.listing.id }}/mark-sold" style="flex: 1;">
                             <button type="submit" class="btn btn-success" style="width: 100%;">Mark Sold</button>
                         </form>
                         {% else %}
-                        <form method="POST" action="/admin/listing/{{ item.listing.id }}/unmark-sold" style="flex: 1;">
+                        <form method="POST" action="/garagesale/admin/listing/{{ item.listing.id }}/unmark-sold" style="flex: 1;">
                             <button type="submit" class="btn btn-success" style="width: 100%;">Relist</button>
                         </form>
                         {% endif %}
 
-                        <form method="POST" action="/admin/listing/{{ item.listing.id }}/delete"
+                        <form method="POST" action="/garagesale/admin/listing/{{ item.listing.id }}/delete"
                               onsubmit="return confirm('Are you sure you want to delete this listing? This cannot be undone.');"
                               style="flex: 1;">
                             <button type="submit" class="btn btn-danger" style="width: 100%;">Delete</button>

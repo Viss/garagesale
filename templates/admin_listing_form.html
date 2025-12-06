@@ -207,8 +207,8 @@
         <div class="header-content">
             <h1>{% if listing %}Edit Listing{% else %}New Listing{% endif %}</h1>
             <div style="display: flex; gap: 10px;">
-                <a href="/" class="btn btn-secondary" target="_blank">View Site</a>
-                <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="/garagesale" class="btn btn-secondary" target="_blank">View Site</a>
+                <a href="/garagesale/admin" class="btn btn-secondary">Back to Dashboard</a>
             </div>
         </div>
     </div>
@@ -268,7 +268,7 @@
                     <div class="existing-images">
                         {% for image in images %}
                         <div class="existing-image">
-                            <img src="/static/uploads/{{ image.filename }}" alt="Image {{ loop.index }}">
+                            <img src="/garagesale/static/uploads/{{ image.filename }}" alt="Image {{ loop.index }}">
                         </div>
                         {% endfor %}
                     </div>
@@ -281,7 +281,7 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">{% if listing %}Update{% else %}Create{% endif %} Listing</button>
-                    <a href="/admin" class="btn btn-secondary">Cancel</a>
+                    <a href="/garagesale/admin" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
