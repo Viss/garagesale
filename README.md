@@ -2,6 +2,11 @@
 
 I vibecoded this nonsense, and then took it into manual review. I spent more time making claude test this things ratelimiting, useragent and referrer guardrails than building the actual app. This thing is not designed to run forever. Need to sell some stuff? dont wanna deal with ebay or vinted? want to make life easy for buyers? got a squareup account, a paypal account, or zelle? Rad, this thing is for you.
 
+## Heads up
+- This thing expects to live in /garagesale, hung off of some domain
+  - Mine lives at hax.lol/garagesale
+  - If you want to change that, you'll have to muck with all the paths in the .py and the various html files in templates/
+
 ## Features
 
 ### Public Site
@@ -13,7 +18,11 @@ I vibecoded this nonsense, and then took it into manual review. I spent more tim
 ### Admin Interface
 - Admin area accessible by rfc1918 hosts by default, but can be switched to auth-based 
 - Create, edit, mark sold, relist or delete listings
+  - TODO: Hm, can't edit pics at all.  
 - Plug in your various api keys
+  - Square for credit cards
+  - Paypal
+  - Zelle just generates a QR code scannable by any banking app with zelle in
 - Configure SMTP for haggle emails
 
 ## Requirements
@@ -62,4 +71,8 @@ if you wish to hang it underneath a real webserver (HIGHLY RECOMMENDED) there ar
    ```bash
    export SECRET_KEY="your-random-secure-key-here"
    ```
+
+### TODO
+1. Figure out how to add/remove pics for listings
+2. Figure out how to make pathing agnostic to its location so it 'just works' wherever people plunk it
 
